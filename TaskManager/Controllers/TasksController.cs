@@ -1,16 +1,19 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Security.Claims;
 using TaskManager.Models.Tasks;
 using TaskManager.Models.Tasks.Request;
 using TaskManager.Services;
 
 namespace TaskManager.Controllers
 {
+    [Authorize]
     public class TasksController : Controller
     {
         private readonly ITaskService _taskService;
 
-        const string authorization = "2FBAF41422D16819BB14";
+
         public TasksController(ITaskService taskService)
         {
             _taskService = taskService;
@@ -19,7 +22,7 @@ namespace TaskManager.Controllers
         // GET: Tasks
         public async Task<IActionResult> Index()
         {
-
+            var authorization = User.FindFirstValue(ClaimTypes.Authentication);
             var taskResponse = await _taskService.SearchTasks(authorization);
 
             if (taskResponse.IsSuccessStatusCode)
@@ -76,6 +79,7 @@ namespace TaskManager.Controllers
         {
             if (ModelState.IsValid)
             {
+                var authorization = User.FindFirstValue(ClaimTypes.Authentication);
                 var response = await _taskService.AddNewTask(authorization, task);
                 return RedirectToAction(nameof(Index));
             }
@@ -121,6 +125,7 @@ namespace TaskManager.Controllers
                         Name = task.Name,
                         Realized = (int)task.Realized
                     };
+                    var authorization = User.FindFirstValue(ClaimTypes.Authentication);
                     await _taskService.UpdateTask(authorization, taskPayload);
                 }
                 catch (Exception)
@@ -157,6 +162,7 @@ namespace TaskManager.Controllers
             var task = FindTaskById(id);
             if (task != null)
             {
+                var authorization = User.FindFirstValue(ClaimTypes.Authentication);
                 var resopnse = await _taskService.DeleteTask(authorization, new DeleteTaskPayload { Id = id });
             }
 
@@ -165,6 +171,7 @@ namespace TaskManager.Controllers
 
         private async Task<TaskModel?> FindTaskById(int? id)
         {
+            var authorization = User.FindFirstValue(ClaimTypes.Authentication);
             var taskResponse = await _taskService.SearchTasks(authorization);
 
             if (taskResponse.IsSuccessStatusCode)

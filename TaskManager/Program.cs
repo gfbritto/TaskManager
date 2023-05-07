@@ -1,29 +1,33 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using RestEase;
 using TaskManager.Services;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using TaskManager.Data;
 
 namespace TaskManager
 {
     public class Program
     {
+        private const string TASKS_API_URL = "https://todolist-api.edsonmelo.com.br/api/";
+
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-                        var connectionString = builder.Configuration.GetConnectionString("TaskManagerContextConnection") ?? throw new InvalidOperationException("Connection string 'TaskManagerContextConnection' not found.");
 
-                                    builder.Services.AddDbContext<TaskManagerContext>(options =>
-                options.UseSqlServer(connectionString));
-
-                                                builder.Services.AddDefaultIdentity<TaskManagerUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<TaskManagerContext>();
 
             //Dependency injection
-            builder.Services.AddSingleton<ITaskService>(r => RestClient.For<ITaskService>("https://todolist-api.edsonmelo.com.br/api/"));
+            builder.Services.AddSingleton<ITaskService>(r => RestClient.For<ITaskService>(TASKS_API_URL));
+            builder.Services.AddSingleton<IUserService>(r => RestClient.For<IUserService>(TASKS_API_URL));
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            builder.Services.AddRazorPages();
+
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.LoginPath = "/User/Login"; // Define a página de login
+                    options.LogoutPath = "/User/Logout"; // Define a página de logout
+                });
 
             var app = builder.Build();
 
@@ -39,7 +43,7 @@ namespace TaskManager
             app.UseStaticFiles();
 
             app.UseRouting();
-                        app.UseAuthentication();;
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

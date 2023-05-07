@@ -9,15 +9,15 @@ namespace TaskManager.Services
     public interface IUserService
     {
         [Post("/user/new/")]
-        Task<UserCreateResponse> Create([Body] User user);
+        Task<UserCreateResponse> Create([Body] UserRegister user);
 
         [Post("/user/update/")]
-        Task<BaseResponse> Update([Body] User user);
+        Task<BaseResponse> Update([Body] UserRegister user);
 
         [Post("/user/delete/")]
         Task<BaseResponse> Delete([Body] UserAuth userAuth);
 
         [Post("/user/login/")]
-        Task<BaseResponse> Login([Body] UserAuth userAuth);
+        Task<UserLoginResponse> Login([Body] UserAuth userAuth);
     }
 }

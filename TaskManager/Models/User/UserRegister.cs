@@ -2,7 +2,7 @@
 
 namespace TaskManager.Models.User
 {
-    public class User
+    public class UserRegister
     {
         [JsonProperty("name")]
         public string Name { get; set; }
