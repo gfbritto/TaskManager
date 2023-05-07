@@ -1,6 +1,6 @@
 ﻿using RestEase;
 using System.Net.Http;
-using TaskManager.Models.Tasks;
+using TaskManager.Models.Tasks.Request;
 
 namespace TaskManager.Services
 {

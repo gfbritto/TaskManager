@@ -1,5 +1,8 @@
-﻿using RestEase;
+using RestEase;
 using TaskManager.Services;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using TaskManager.Data;
 
 namespace TaskManager
 {
@@ -8,6 +11,13 @@ namespace TaskManager
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+                        var connectionString = builder.Configuration.GetConnectionString("TaskManagerContextConnection") ?? throw new InvalidOperationException("Connection string 'TaskManagerContextConnection' not found.");
+
+                                    builder.Services.AddDbContext<TaskManagerContext>(options =>
+                options.UseSqlServer(connectionString));
+
+                                                builder.Services.AddDefaultIdentity<TaskManagerUser>(options => options.SignIn.RequireConfirmedAccount = true)
+                .AddEntityFrameworkStores<TaskManagerContext>();
 
             //Dependency injection
             builder.Services.AddSingleton<ITaskService>(r => RestClient.For<ITaskService>("https://todolist-api.edsonmelo.com.br/api/"));
@@ -29,6 +39,7 @@ namespace TaskManager
             app.UseStaticFiles();
 
             app.UseRouting();
+                        app.UseAuthentication();;
 
             app.UseAuthorization();
 

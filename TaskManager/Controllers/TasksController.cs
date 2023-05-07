@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using TaskManager.Models.Tasks;
+using TaskManager.Models.Tasks.Request;
 using TaskManager.Services;
 
 namespace TaskManager.Controllers

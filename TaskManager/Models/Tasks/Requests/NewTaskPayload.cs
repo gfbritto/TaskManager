@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace TaskManager.Models.Tasks
+namespace TaskManager.Models.Tasks.Request
 {
     public class NewTaskPayload
     {

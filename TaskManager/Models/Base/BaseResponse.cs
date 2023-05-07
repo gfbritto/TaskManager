@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
 
-namespace TaskManager.Models.Tasks
+namespace TaskManager.Models.Base
 {
-    public class TaskDefaultResponse
+    public class BaseResponse
     {
         [JsonProperty("message")]
         public string Message { get; set; }
