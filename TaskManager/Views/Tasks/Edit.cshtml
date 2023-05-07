@@ -1,4 +1,5 @@
 ﻿@using TaskManager.Models.Tasks;
+@using TaskManager.Models.Tasks.Enum
 
 @model TaskModel
 
@@ -21,10 +22,11 @@
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Realized" /> @Html.DisplayNameFor(model => model.Realized)
-                </label>
+            <div class="form-group">
+                <label asp-for="Realized" class="control-label"></label>
+                <select asp-for="Realized" asp-items="@Html.GetEnumSelectList<TaskStatusEnum>()" class="form-control">
+                </select>
+                <span asp-validation-for="Realized" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
@@ -38,5 +40,7 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    }

@@ -11,13 +11,13 @@ namespace TaskManager.Models.Tasks
         public int UserId { get; set; }
 
         [JsonProperty("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         [JsonProperty("date")]
-        public string Date { get; set; }
+        public string? Date { get; set; }
 
         [JsonProperty("realized")]
-        public int Realized { get; set; }
+        public int? Realized { get; set; }
     }
 
 }

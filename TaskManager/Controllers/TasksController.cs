@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using TaskManager.Models.Tasks;
 using TaskManager.Services;
 
@@ -17,9 +18,29 @@ namespace TaskManager.Controllers
         // GET: Tasks
         public async Task<IActionResult> Index()
         {
+
             var taskResponse = await _taskService.SearchTasks(authorization);
 
-            return View(taskResponse);
+            if (taskResponse.IsSuccessStatusCode)
+            {
+                try
+                {
+                    var content = await taskResponse.Content.ReadAsStringAsync();
+                    if (content.StartsWith("{\"message\""))
+                    {
+                        return View(new List<TaskModel>());
+                    }
+                    var tasks = JsonConvert.DeserializeObject<List<TaskModel>>(content);
+
+                    return View(tasks);
+                }
+                catch (Exception ex)
+                {
+                    return View(new List<TaskModel>());
+                }
+
+            }
+            return View(new List<TaskModel>());
         }
 
         // GET: Tasks/Details/5
@@ -81,14 +102,15 @@ namespace TaskManager.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,UserId,Name,Date,Realized")] TaskModel task)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Realized")] TaskModel task)
         {
             if (id != task.Id)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            var isInvalidModel = task == null || string.IsNullOrEmpty(task.Name) || task.Realized == null || task.Realized > 2;
+            if (!isInvalidModel)
             {
                 try
                 {
@@ -96,7 +118,7 @@ namespace TaskManager.Controllers
                     {
                         Id = task.Id,
                         Name = task.Name,
-                        Realized = task.Realized
+                        Realized = (int)task.Realized
                     };
                     await _taskService.UpdateTask(authorization, taskPayload);
                 }
@@ -104,9 +126,9 @@ namespace TaskManager.Controllers
                 {
                     throw;
                 }
-                return RedirectToAction(nameof(Index));
+
             }
-            return View(task);
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Tasks/Delete/5
@@ -117,7 +139,7 @@ namespace TaskManager.Controllers
                 return NotFound();
             }
 
-            var task = FindTaskById(id);
+            var task = await FindTaskById(id);
             if (task == null)
             {
                 return NotFound();
@@ -134,16 +156,31 @@ namespace TaskManager.Controllers
             var task = FindTaskById(id);
             if (task != null)
             {
-                await _taskService.DeleteTask(authorization, new DeleteTaskPayload { Id = id });
+                var resopnse = await _taskService.DeleteTask(authorization, new DeleteTaskPayload { Id = id });
             }
 
             return RedirectToAction(nameof(Index));
         }
 
-        private async Task<TaskModel> FindTaskById(int? id)
+        private async Task<TaskModel?> FindTaskById(int? id)
         {
-            var tasks = await _taskService.SearchTasks(authorization);
-            return tasks.Tasks.FirstOrDefault(task => task.Id == id);
+            var taskResponse = await _taskService.SearchTasks(authorization);
+
+            if (taskResponse.IsSuccessStatusCode)
+            {
+                try
+                {
+                    var content = await taskResponse.Content.ReadAsStringAsync();
+                    var tasks = JsonConvert.DeserializeObject<List<TaskModel>>(content);
+
+                    return tasks.FirstOrDefault(task => task.Id == id);
+                }
+                catch (Exception ex)
+                {
+                    return null;
+                }
+            }
+            return null;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using RestEase;
+using System.Net.Http;
 using TaskManager.Models.Tasks;
 
 namespace TaskManager.Services
@@ -10,7 +11,7 @@ namespace TaskManager.Services
         Task<string> AddNewTask([Header("Authorization")] string authorization, [Body] NewTaskPayload payload);
 
         [Post("/task/search/")]
-        Task<SearchTasksResponse> SearchTasks([Header("Authorization")] string authorization);
+        Task<HttpResponseMessage> SearchTasks([Header("Authorization")] string authorization);
 
         [Put("/task/update/")]
         Task<string> UpdateTask([Header("Authorization")] string authorization, [Body] UpdateTaskPayload payload);
